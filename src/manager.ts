@@ -10,7 +10,7 @@ export class PageItem extends vscode.TreeItem {
     public   name : string,
     readonly path : string,
   ) {
-    super(path, vscode.TreeItemCollapsibleState.None);
+    super(name, vscode.TreeItemCollapsibleState.None);
 
     this.contextValue = "groupManager.page";
   }
@@ -36,16 +36,13 @@ export class GroupItem extends vscode.TreeItem {
     this.contextValue = "groupManager.group";
   }
 
-  public addPage(path: string) {
+  public addPage(page: PageItem) {
     // check if page already exists
-    if (this.pages.some(f => f.path === path))
+    if (this.pages.some(f => f.path === page.path))
       return;
 
-    // extract the file name from path
-    const label = path.split("/").pop() as string;
-
-    // push new page
-    this.pages.push(new PageItem(this, label, path));
+    // push page
+    this.pages.push(page);
 
     // update tree view
     this.manager.emitter.fire();
@@ -101,5 +98,35 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
 
   getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
     return element?.isGroup ? element.pages : this.groups;
+  }
+
+
+  createGroup(name: string): GroupItem | undefined {
+    // check if group already exists
+    if (this.groups.some(f => f.name === name))
+      return;
+
+    // create new group
+    const group = new GroupItem(this, name);
+
+    // push new group
+    this.groups.push(group);
+
+    // update tree view
+    this.emitter.fire();
+
+    // return new group
+    return group;
+  }
+
+  deleteGroup(name: string) {
+    // remove group if exists
+    const index = this.groups.findIndex(f => f.name === name);
+    if (index === -1) return;
+
+    this.groups.splice(index, 1);
+
+    // update tree view
+    this.emitter.fire();
   }
 }
