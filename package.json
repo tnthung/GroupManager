@@ -12,7 +12,23 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
-    "commands": []
+    "commands": [
+      { "command": "groupManager.createGroup", "title": "Create Group" },
+      { "command": "groupManager.renameGroup", "title": "Rename Group" },
+      { "command": "groupManager.updateGroup", "title": "Update Group" },
+      { "command": "groupManager.deleteGroup", "title": "Delete Group" },
+      { "command": "groupManager.openGroup"  , "title": "Open Group"   },
+      { "command": "groupManager.addPage"    , "title": "Add Page"     },
+      { "command": "groupManager.removePage" , "title": "Remove Page"  }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "groupManager",
+          "name": "Group Manager"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
