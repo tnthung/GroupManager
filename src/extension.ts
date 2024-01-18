@@ -58,14 +58,6 @@ export function activate(context: vscode.ExtensionContext) {
 
       break;
     }
-
-    // update tree view
-    groupManager.emitter.fire();
-  }));
-
-
-  context.subscriptions.push(vscode.commands.registerCommand("groupManager.deleteGroup", async (group: GroupItem) => {
-    groupManager.deleteGroup(group.name);
   }));
 
 
@@ -80,6 +72,48 @@ export function activate(context: vscode.ExtensionContext) {
 
     // rename group
     groupManager.renameGroup(group.name, groupName);
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.updateGroup", async (group: GroupItem) => {
+    // get root path of the workspace
+    const workspaceFolders = vscode.workspace.workspaceFolders!;
+    const workspaceCount   = workspaceFolders.length;
+
+    // clear pages
+    group.clearPages();
+
+    // add pages to group
+    for (const tabGroup of vscode.window.tabGroups.all) {
+      if (!tabGroup.isActive) continue;
+
+      for (const editor of tabGroup.tabs) {
+        if (editor.isPreview || !editor.input) continue;
+
+        let   name = "";
+        const path: string = (editor.input as any).uri.path;
+
+        for (const workspace of workspaceFolders) {
+          const workspacePath = workspace.uri.path;
+          if (!path.startsWith(workspacePath)) continue;
+
+          if (workspaceCount > 1)
+            name += `[${workspace.name}] `;
+          name += path.slice(workspacePath.length + 1);
+
+          break;
+        }
+
+        group?.addPage(new PageItem(group, name, path));
+      }
+
+      break;
+    }
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.deleteGroup", async (group: GroupItem) => {
+    groupManager.deleteGroup(group.name);
   }));
 
 

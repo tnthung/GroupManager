@@ -66,6 +66,13 @@ export class GroupItem extends vscode.TreeItem {
     this.manager.emitter.fire();
   }
 
+  public clearPages() {
+    this.pages = [];
+
+    // update tree view
+    this.manager.emitter.fire();
+  }
+
   public intoJson(): string {
     let str = `"${this.label}": {`;
 
