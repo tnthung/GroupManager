@@ -13,14 +13,14 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"     },
-      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)"  },
-      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"   },
-      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"    },
-      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(refresh)" },
-      { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"     },
-      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1"                       },
-      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1"                       }
+      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
+      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)" },
+      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(edit)"   },
+      { "command": "groupManager.toggleGroup", "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"    },
+      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  },
+      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"   },
+      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
+      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  }
     ],
     "menus": {
       "commandPalette": [
