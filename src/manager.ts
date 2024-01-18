@@ -8,26 +8,30 @@ export class PageItem extends vscode.TreeItem {
   constructor(
     readonly group: GroupItem,
     public   name : string,
-    readonly path : string,
+    readonly uri  : vscode.Uri
   ) {
     super(name, vscode.TreeItemCollapsibleState.None);
 
     this.contextValue = "groupManager.page";
   }
 
+  public get path() { return this.uri.path; }
+
   public remove() {
     this.group.removePage(this.path);
   }
 
   public intoJson(): string {
-    return `"${this.label}": "${this.path}"`;
+    return `"${this.label}": "${this.uri}"`;
   }
 }
 
 
 export class GroupItem extends vscode.TreeItem {
-  readonly isGroup = true as const;
+  readonly isGroup = true  as const;
   readonly isPage  = false as const;
+
+  viewColumn: number | undefined;
 
   pages = [] as PageItem[];
 
@@ -71,6 +75,47 @@ export class GroupItem extends vscode.TreeItem {
 
     // update tree view
     this.manager.emitter.fire();
+  }
+
+  public async open() {
+    if (!this.pages.length) return;
+
+    if (this.viewColumn !== undefined) {
+      if (vscode.window.tabGroups.activeTabGroup.viewColumn === this.viewColumn)
+        return;
+
+      // focus the tab group
+      const nth = [
+        "First",
+        "Second",
+        "Third",
+        "Fourth",
+        "Fifth",
+        "Sixth",
+        "Seventh",
+        "Eighth",
+      ][this.viewColumn-1];
+
+      await vscode.commands.executeCommand(`workbench.action.focus${nth}EditorGroup`);
+    }
+
+    else {
+      // create a new tab group
+      await vscode.commands.executeCommand("workbench.action.newGroupBelow");
+
+      // open pages in the new tab group
+      for (const page of this.pages)
+        vscode.commands.executeCommand("vscode.open", vscode.Uri.file(page.path), {preview: false});
+    }
+
+    // maximize the new tab group
+    await vscode.commands.executeCommand("workbench.action.toggleMaximizeEditorGroup");
+
+    // lock the new tab group
+    await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
+
+    // set the new tab group to this group
+    this.viewColumn = vscode.window.tabGroups.activeTabGroup.viewColumn;
   }
 
   public intoJson(): string {

@@ -40,7 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor.isPreview || !editor.input) continue;
 
         let   name = "";
-        const path: string = (editor.input as any).uri.path;
+        const uri  = (editor.input as any).uri as vscode.Uri;
+        const path = uri.path;
 
         for (const workspace of workspaceFolders) {
           const workspacePath = workspace.uri.path;
@@ -53,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
         }
 
-        group?.addPage(new PageItem(group, name, path));
+        group?.addPage(new PageItem(group, name, uri));
       }
 
       break;
@@ -91,7 +92,8 @@ export function activate(context: vscode.ExtensionContext) {
         if (editor.isPreview || !editor.input) continue;
 
         let   name = "";
-        const path: string = (editor.input as any).uri.path;
+        const uri  = (editor.input as any).uri as vscode.Uri;
+        const path = uri.path;
 
         for (const workspace of workspaceFolders) {
           const workspacePath = workspace.uri.path;
@@ -104,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
         }
 
-        group?.addPage(new PageItem(group, name, path));
+        group?.addPage(new PageItem(group, name, uri));
       }
 
       break;
@@ -124,6 +126,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.removePage", async (page: PageItem) => {
     page.remove();
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.openGroup", async (group: GroupItem) => {
+    group.open();
   }));
 
   vscode.window.registerTreeDataProvider("groupManager", groupManager);
