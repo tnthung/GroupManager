@@ -82,6 +82,16 @@ export function activate(context: vscode.ExtensionContext) {
     groupManager.renameGroup(group.name, groupName);
   }));
 
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.refresh", async (group: GroupItem) => {
+    groupManager.emitter.fire(group);
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.removePage", async (page: PageItem) => {
+    page.remove();
+  }));
+
   vscode.window.registerTreeDataProvider("groupManager", groupManager);
 }
 

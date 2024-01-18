@@ -15,6 +15,10 @@ export class PageItem extends vscode.TreeItem {
     this.contextValue = "groupManager.page";
   }
 
+  public remove() {
+    this.group.removePage(this.path);
+  }
+
   public intoJson(): string {
     return `"${this.label}": "${this.path}"`;
   }

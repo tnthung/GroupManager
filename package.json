@@ -15,24 +15,25 @@
     "commands": [
       { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"     },
       { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)"  },
-      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(refresh)" },
       { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"   },
+      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(refresh)" },
       { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"     },
-      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1" },
-      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1" }
+      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1"                       },
+      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1"                       }
     ],
     "menus": {
       "commandPalette": [
         { "command": "groupManager.createGroup", "when": "false" },
         { "command": "groupManager.renameGroup", "when": "false" },
-        { "command": "groupManager.updateGroup", "when": "false" },
+        { "command": "groupManager.refresh"    , "when": "false" },
         { "command": "groupManager.deleteGroup", "when": "false" },
         { "command": "groupManager.openGroup"  , "when": "false" },
         { "command": "groupManager.addPage"    , "when": "false" },
         { "command": "groupManager.removePage" , "when": "false" }
       ],
       "view/title": [
-        { "command": "groupManager.createGroup", "group": "navigation@0", "when": "view == groupManager" }
+        { "command": "groupManager.createGroup", "group": "navigation@0", "when": "view == groupManager" },
+        { "command": "groupManager.refresh"    , "group": "navigation@1", "when": "view == groupManager" }
       ],
       "view/item/context": [
         { "command": "groupManager.renameGroup", "group": "navigation@0", "when": "view == groupManager && viewItem == groupManager.group" },
