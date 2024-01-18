@@ -129,4 +129,25 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     // update tree view
     this.emitter.fire();
   }
+
+  renameGroup(oldName: string, newName: string) {
+    // check if group already exists
+    if (this.groups.some(f => f.name === newName)) {
+      vscode.window.showErrorMessage(`Group '${newName}' already exists`);
+      return;
+    }
+
+    // rename group if exists
+    const group = this.groups.find(f => f.name === oldName);
+    if (!group) {
+      vscode.window.showErrorMessage(`Group '${oldName}' does not exist`);
+      return;
+    }
+
+    group.name  = newName;
+    group.label = newName;
+
+    // update tree view
+    this.emitter.fire();
+  }
 }

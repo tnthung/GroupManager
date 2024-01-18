@@ -68,6 +68,20 @@ export function activate(context: vscode.ExtensionContext) {
     groupManager.deleteGroup(group.name);
   }));
 
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.renameGroup", async (group: GroupItem) => {
+    // get the name of the group
+    const groupName = await vscode.window.showInputBox({
+      title: "Group Name",
+      value: group.name,
+      placeHolder: "Enter the name of the group"});
+
+    if (!groupName) return;
+
+    // rename group
+    groupManager.renameGroup(group.name, groupName);
+  }));
+
   vscode.window.registerTreeDataProvider("groupManager", groupManager);
 }
 
