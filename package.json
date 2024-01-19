@@ -8,7 +8,7 @@
   "name": "groupmanager",
   "displayName": "GroupManager",
   "description": "group manager for vscode",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "https://github.com/tnthung/GroupManager.git",
   "engines": {
     "vscode": "^1.85.0"
@@ -67,11 +67,6 @@
     "configuration": {
       "title": "Group Manager",
       "properties": {
-        "groupManager.openInNewWindow": {
-          "type": "boolean",
-          "default": false,
-          "description": "Open group in new window"
-        },
         "groupManager.groups": {
           "type": "object",
           "default": {},
