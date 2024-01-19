@@ -99,21 +99,27 @@ export class GroupItem extends vscode.TreeItem {
       // create a new tab group
       await vscode.commands.executeCommand("workbench.action.newGroupBelow");
 
-      // move the new tab group to the new window
-      await vscode.commands.executeCommand("workbench.action.moveEditorGroupToNewWindow");
-
       // open pages in the new tab group
       for (const page of this.pages)
         vscode.commands.executeCommand("vscode.open", vscode.Uri.file(page.path), {preview: false});
 
-      // lock the new tab group
-      await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
+      // get the config of if open in new window
+      if (vscode.workspace.getConfiguration("groupManager").get("openInNewWindow") === true)
+        // move the new tab group to the new window
+        await vscode.commands.executeCommand("workbench.action.moveEditorGroupToNewWindow");
 
       // set the new tab group to this group
       this.group = vscode.window.tabGroups.activeTabGroup;
     }
 
+    // maximize the new tab group
+    await vscode.commands.executeCommand("workbench.action.toggleMaximizeEditorGroup");
+
+    // lock the new tab group
+    await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
+
     this.contextValue = "groupManager.focused";
+    this.label        = `👁️ ${this.name}`;
 
     // update tree view
     this.manager.emitter.fire();
@@ -128,6 +134,7 @@ export class GroupItem extends vscode.TreeItem {
 
   public detach() {
     this.group        = undefined;
+    this.label        = this.name;
     this.contextValue = "groupManager.group";
 
     // update tree view

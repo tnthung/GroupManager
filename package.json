@@ -56,6 +56,16 @@
           "when": "workspaceFolderCount >= 1"
         }
       ]
+    },
+    "configuration": {
+      "title": "Group Manager",
+      "properties": {
+        "groupManager.openInNewWindow": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open group in new window"
+        }
+      }
     }
   },
   "scripts": {
