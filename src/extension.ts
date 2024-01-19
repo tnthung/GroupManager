@@ -11,6 +11,16 @@ export function activate(context: vscode.ExtensionContext) {
   const groupManager = new GroupManagerProvider(context);
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.createGroup", async _ => {
+    // get the active tab group
+    const activeTabGroup = vscode.window.tabGroups.activeTabGroup;
+
+    // check if group is already active
+    const alreadyActive = groupManager.groups.some(
+      f => f.viewColumn === activeTabGroup.viewColumn);
+
+    if (alreadyActive)
+      return vscode.commands.executeCommand("groupManager.updateGroup");
+
     // get the name of the group
     const groupName = await vscode.window.showInputBox({
       title: "Group Name",
@@ -29,17 +39,17 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // add pages to group
-    for (const tabGroup of vscode.window.tabGroups.all) {
-      if (!tabGroup.isActive) continue;
+    for (const editor of activeTabGroup.tabs) {
+      if (editor.isPreview || !editor.input) continue;
 
-      for (const editor of tabGroup.tabs) {
-        if (editor.isPreview || !editor.input) continue;
+      const uri = (editor.input as any).uri as vscode.Uri;
+      group?.addPage(new PageItem(group, uri.path));
+    }
 
-        const uri = (editor.input as any).uri as vscode.Uri;
-        group?.addPage(new PageItem(group, uri.path));
-      }
-
-      break;
+    // set the group as active & focus if more than one group is opened
+    if (vscode.window.tabGroups.all.length > 1) {
+      group.group = vscode.window.tabGroups.activeTabGroup;
+      group.focus();
     }
 
     // save the config
