@@ -5,13 +5,32 @@ export class PageItem extends vscode.TreeItem {
   readonly isGroup = false as const;
   readonly isPage  = true  as const;
 
+  name: string;
+
   constructor(
     readonly group: GroupItem,
-    public   name : string,
     readonly path : string,
   ) {
-    super(name, vscode.TreeItemCollapsibleState.None);
+    super((() => {
+      const workspaceFolders = vscode.workspace.workspaceFolders!;
+      const workspaceCount   = workspaceFolders.length;
 
+      let name = "";
+
+      for (const workspace of workspaceFolders) {
+        const workspacePath = workspace.uri.path;
+        if (!path.startsWith(workspacePath)) continue;
+
+        if (workspaceCount > 1)
+          name += `[${workspace.name}] `;
+        name += path.slice(workspacePath.length + 1);
+        break;
+      }
+
+      return name;
+    })(), vscode.TreeItemCollapsibleState.None);
+
+    this.name = this.label! as string;
     this.contextValue = "groupManager.page";
   }
 
@@ -181,9 +200,6 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     // push new group
     this.groups.push(group);
 
-    // save to config
-    this.saveToConfig();
-
     // update tree view
     this.emitter.fire();
 
@@ -197,9 +213,6 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     if (index === -1) return;
 
     this.groups.splice(index, 1);
-
-    // save to config
-    this.saveToConfig();
 
     // update tree view
     this.emitter.fire();
@@ -221,9 +234,6 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
 
     group.name  = newName;
     group.label = newName;
-
-    // save to config
-    this.saveToConfig();
 
     // update tree view
     this.emitter.fire();
@@ -257,7 +267,7 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
       const group = this.createGroup(name)!;
 
       for (const path of config[name].pages)
-        group.addPage(new PageItem(group, path.split("/").pop() as string, path));
+        group.addPage(new PageItem(group, path));
     }
   }
 }
