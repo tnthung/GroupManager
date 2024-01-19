@@ -116,6 +116,40 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
 
+  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(async (editor: vscode.TextEditor | undefined) => {
+    if (!editor) {
+      // try detaching the group
+      for (const group of groupManager.groups)
+        group.tryDetach();
+      return;
+    }
+
+    if (!editor.viewColumn) {
+      groupManager.blurAllGroups();
+      return;
+    }
+
+    // get view column of the active editor
+    const viewColumn = editor.viewColumn;
+
+    // iterate over all groups
+    for (const group of groupManager.groups) {
+      // check if group is opened
+      if (!group.viewColumn) continue;
+
+      // check if the current editor is in the group
+      if (group.viewColumn !== viewColumn) {
+        group.blur();
+        continue;
+      }
+
+      // if the current editor is in the group, focus the group
+      group.focus();
+      return;
+    }
+  }));
+
+
   vscode.window.registerTreeDataProvider("groupManager", groupManager);
 }
 

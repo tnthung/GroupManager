@@ -44,8 +44,8 @@ export class GroupItem extends vscode.TreeItem {
   readonly isGroup = true  as const;
   readonly isPage  = false as const;
 
-  group = undefined as undefined | vscode.TabGroup;
-  pages = []        as PageItem[];
+  viewColumn = undefined as undefined | number;
+  pages      = []        as PageItem[];
 
   constructor(
     readonly manager: GroupManagerProvider,
@@ -92,7 +92,7 @@ export class GroupItem extends vscode.TreeItem {
   public async focus() {
     if (!this.pages.length) return;
 
-    if (this.group !== undefined) {
+    if (this.viewColumn !== undefined) {
       // focus the tab group
       const nth = [
         "First",
@@ -103,7 +103,7 @@ export class GroupItem extends vscode.TreeItem {
         "Sixth",
         "Seventh",
         "Eighth",
-      ][this.group.viewColumn-1];
+      ][this.viewColumn-1];
 
       await vscode.commands.executeCommand(`workbench.action.focus${nth}EditorGroup`);
     }
@@ -122,7 +122,7 @@ export class GroupItem extends vscode.TreeItem {
         await vscode.commands.executeCommand("workbench.action.moveEditorGroupToNewWindow");
 
       // set the new tab group to this group
-      this.group = vscode.window.tabGroups.activeTabGroup;
+      this.viewColumn = vscode.window.tabGroups.activeTabGroup.viewColumn;
     }
 
     // maximize the new tab group
@@ -146,12 +146,28 @@ export class GroupItem extends vscode.TreeItem {
   }
 
   public detach() {
-    this.group        = undefined;
+    this.viewColumn   = undefined;
     this.label        = this.name;
     this.contextValue = "groupManager.group";
 
     // update tree view
     this.manager.emitter.fire();
+  }
+
+  public tryDetach() {
+    if (!this.viewColumn) return;
+
+    // get new group state
+    const group = vscode.window.tabGroups.all
+      .find(f => f.viewColumn === this.viewColumn);
+
+    const needDetach = !group || group.tabs.length === 0;
+
+    // check if all pages are closed
+    if (needDetach)
+      this.detach();
+
+    return needDetach;
   }
 }
 
