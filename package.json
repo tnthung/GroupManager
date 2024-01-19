@@ -4,6 +4,7 @@
     "email": "hung11112002@gmail.com"
   },
   "license": "MIT",
+  "publisher": "TNThung",
   "name": "groupmanager",
   "displayName": "GroupManager",
   "description": "group manager for vscode",
