@@ -44,8 +44,8 @@ export class GroupItem extends vscode.TreeItem {
   readonly isGroup = true  as const;
   readonly isPage  = false as const;
 
-  viewColumn = undefined as undefined | number;
-  pages      = []        as PageItem[];
+  group = undefined as undefined | vscode.TabGroup;
+  pages = []        as PageItem[];
 
   constructor(
     readonly manager: GroupManagerProvider,
@@ -55,6 +55,8 @@ export class GroupItem extends vscode.TreeItem {
 
     this.contextValue = "groupManager.group";
   }
+
+  public get viewColumn() { return this.group?.viewColumn; }
 
   public addPage(page: PageItem) {
     // check if page already exists
@@ -89,56 +91,67 @@ export class GroupItem extends vscode.TreeItem {
     this.manager.emitter.fire();
   }
 
+  private async focusGroup() {
+    if (this.viewColumn === undefined) return;
+
+    const nth = [
+      "First",
+      "Second",
+      "Third",
+      "Fourth",
+      "Fifth",
+      "Sixth",
+      "Seventh",
+      "Eighth",
+    ][this.viewColumn-1];
+
+    await vscode.commands.executeCommand(`workbench.action.focus${nth}EditorGroup`);
+  }
+
   public async focus() {
     if (!this.pages.length) return;
 
-    if (this.viewColumn !== undefined) {
-      // focus the tab group
-      const nth = [
-        "First",
-        "Second",
-        "Third",
-        "Fourth",
-        "Fifth",
-        "Sixth",
-        "Seventh",
-        "Eighth",
-      ][this.viewColumn-1];
+    if (this.contextValue === "groupManager.focused")
+      return;
 
-      await vscode.commands.executeCommand(`workbench.action.focus${nth}EditorGroup`);
-    }
+    this.contextValue = "groupManager.focused";
+    this.label        = `👁️ ${this.name}`;
+
+    const newWindow = vscode.workspace.getConfiguration("groupManager").get("openInNewWindow");
+
+    if (this.viewColumn !== undefined)
+      await this.focusGroup();
 
     else {
       // create a new tab group
-      await vscode.commands.executeCommand("workbench.action.newGroupBelow");
+      if (newWindow)
+        await vscode.commands.executeCommand("workbench.action.newEmptyEditorWindow");
+
+      else
+        await vscode.commands.executeCommand("workbench.action.newGroupBelow");
 
       // open pages in the new tab group
       for (const page of this.pages)
         vscode.commands.executeCommand("vscode.open", vscode.Uri.file(page.path), {preview: false});
 
-      // get the config of if open in new window
-      if (vscode.workspace.getConfiguration("groupManager").get("openInNewWindow") === true)
-        // move the new tab group to the new window
-        await vscode.commands.executeCommand("workbench.action.moveEditorGroupToNewWindow");
-
       // set the new tab group to this group
-      this.viewColumn = vscode.window.tabGroups.activeTabGroup.viewColumn;
+      this.group = vscode.window.tabGroups.activeTabGroup;
     }
 
     // maximize the new tab group
-    await vscode.commands.executeCommand("workbench.action.toggleMaximizeEditorGroup");
+    vscode.commands.executeCommand("workbench.action.toggleMaximizeEditorGroup");
 
     // lock the new tab group
-    await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
-
-    this.contextValue = "groupManager.focused";
-    this.label        = `👁️ ${this.name}`;
+    vscode.commands.executeCommand("workbench.action.lockEditorGroup");
 
     // update tree view
     this.manager.emitter.fire();
   }
 
   public blur() {
+    if (this.contextValue !== "groupManager.focused")
+      return;
+
     this.contextValue = "groupManager.group";
 
     // update tree view
@@ -146,7 +159,7 @@ export class GroupItem extends vscode.TreeItem {
   }
 
   public detach() {
-    this.viewColumn   = undefined;
+    this.group        = undefined;
     this.label        = this.name;
     this.contextValue = "groupManager.group";
 
@@ -155,7 +168,7 @@ export class GroupItem extends vscode.TreeItem {
   }
 
   public tryDetach() {
-    if (!this.viewColumn) return;
+    if (!this.group) return;
 
     // get new group state
     const group = vscode.window.tabGroups.all
@@ -255,9 +268,10 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     this.emitter.fire();
   }
 
-  blurAllGroups() {
+  blurAllGroups(except?: GroupItem) {
     for (const group of this.groups)
-      group.blur();
+      if (!except || group.viewColumn !== except.viewColumn)
+        group.blur();
   }
 
   saveToConfig() {

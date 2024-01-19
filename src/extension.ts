@@ -85,7 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.openGroup", async (group: GroupItem) => {
-    groupManager.blurAllGroups();
+    groupManager.blurAllGroups(group);
     group.focus();
   }));
 
