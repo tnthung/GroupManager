@@ -1,5 +1,10 @@
 {
-  "name": "groupmanager",
+  "author": {
+    "name": "TNThung",
+    "email": "hung11112002@gmail.com"
+  },
+  "license": "MIT",
+  "name": "group_manager",
   "displayName": "GroupManager",
   "description": "group manager for vscode",
   "version": "0.0.1",
@@ -13,15 +18,15 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"        },
-      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)"     },
-      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(edit)"       },
-      { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"        },
-      { "command": "groupManager.detachGroup", "title": "Detach Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(eye-closed)" },
-      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"      },
-      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"       },
-      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"        },
-      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"      }
+      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
+      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)" },
+      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(edit)"   },
+      { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"    },
+      { "command": "groupManager.detachGroup", "title": "Detach Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(stop)"   },
+      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  },
+      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"   },
+      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
+      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  }
     ],
     "menus": {
       "commandPalette": [
