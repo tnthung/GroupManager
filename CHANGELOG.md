@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.0.4 (2024/01/19)
+
+- [ADD] When creating a new group, if there're more than one editor group, the current active one
+  will be set to active automatically.
+
 ## 0.0.3 (2024/01/19)
 
 - [RMV] The `openInNewWindow` option is temporarily removed. It can easily cause the manager to fail.
