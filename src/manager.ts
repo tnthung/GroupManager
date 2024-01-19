@@ -31,9 +31,8 @@ export class GroupItem extends vscode.TreeItem {
   readonly isGroup = true  as const;
   readonly isPage  = false as const;
 
-  viewColumn: number | undefined;
-
-  pages = [] as PageItem[];
+  group = undefined as undefined | vscode.TabGroup;
+  pages = []        as PageItem[];
 
   constructor(
     readonly manager: GroupManagerProvider,
@@ -77,13 +76,10 @@ export class GroupItem extends vscode.TreeItem {
     this.manager.emitter.fire();
   }
 
-  public async open() {
+  public async focus() {
     if (!this.pages.length) return;
 
-    if (this.viewColumn !== undefined) {
-      if (vscode.window.tabGroups.activeTabGroup.viewColumn === this.viewColumn)
-        return;
-
+    if (this.group !== undefined) {
       // focus the tab group
       const nth = [
         "First",
@@ -94,7 +90,7 @@ export class GroupItem extends vscode.TreeItem {
         "Sixth",
         "Seventh",
         "Eighth",
-      ][this.viewColumn-1];
+      ][this.group.viewColumn-1];
 
       await vscode.commands.executeCommand(`workbench.action.focus${nth}EditorGroup`);
     }
@@ -103,19 +99,39 @@ export class GroupItem extends vscode.TreeItem {
       // create a new tab group
       await vscode.commands.executeCommand("workbench.action.newGroupBelow");
 
+      // move the new tab group to the new window
+      await vscode.commands.executeCommand("workbench.action.moveEditorGroupToNewWindow");
+
       // open pages in the new tab group
       for (const page of this.pages)
         vscode.commands.executeCommand("vscode.open", vscode.Uri.file(page.path), {preview: false});
+
+      // lock the new tab group
+      await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
+
+      // set the new tab group to this group
+      this.group = vscode.window.tabGroups.activeTabGroup;
     }
 
-    // maximize the new tab group
-    await vscode.commands.executeCommand("workbench.action.toggleMaximizeEditorGroup");
+    this.contextValue = "groupManager.focused";
 
-    // lock the new tab group
-    await vscode.commands.executeCommand("workbench.action.lockEditorGroup");
+    // update tree view
+    this.manager.emitter.fire();
+  }
 
-    // set the new tab group to this group
-    this.viewColumn = vscode.window.tabGroups.activeTabGroup.viewColumn;
+  public blur() {
+    this.contextValue = "groupManager.group";
+
+    // update tree view
+    this.manager.emitter.fire();
+  }
+
+  public detach() {
+    this.group        = undefined;
+    this.contextValue = "groupManager.group";
+
+    // update tree view
+    this.manager.emitter.fire();
   }
 
   public intoJson(): string {
@@ -205,5 +221,10 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
 
     // update tree view
     this.emitter.fire();
+  }
+
+  blurAllGroups() {
+    for (const group of this.groups)
+      group.blur();
   }
 }

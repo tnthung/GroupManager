@@ -114,6 +114,17 @@ export function activate(context: vscode.ExtensionContext) {
   }));
 
 
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.openGroup", async (group: GroupItem) => {
+    groupManager.blurAllGroups();
+    group.focus();
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.detachGroup", async (group: GroupItem) => {
+    group.detach();
+  }));
+
+
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.deleteGroup", async (group: GroupItem) => {
     groupManager.deleteGroup(group.name);
   }));
@@ -126,11 +137,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.removePage", async (page: PageItem) => {
     page.remove();
-  }));
-
-
-  context.subscriptions.push(vscode.commands.registerCommand("groupManager.openGroup", async (group: GroupItem) => {
-    group.open();
   }));
 
   vscode.window.registerTreeDataProvider("groupManager", groupManager);
