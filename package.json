@@ -64,6 +64,11 @@
           "type": "boolean",
           "default": false,
           "description": "Open group in new window"
+        },
+        "groupManager.groups": {
+          "type": "object",
+          "default": {},
+          "description": "Groups of current workspace"
         }
       }
     }

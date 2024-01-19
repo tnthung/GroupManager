@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
         }
 
-        group?.addPage(new PageItem(group, name, uri));
+        group?.addPage(new PageItem(group, name, path));
       }
 
       break;
@@ -106,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
         }
 
-        group?.addPage(new PageItem(group, name, uri));
+        group?.addPage(new PageItem(group, name, path));
       }
 
       break;

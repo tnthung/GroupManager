@@ -8,21 +8,15 @@ export class PageItem extends vscode.TreeItem {
   constructor(
     readonly group: GroupItem,
     public   name : string,
-    readonly uri  : vscode.Uri
+    readonly path : string,
   ) {
     super(name, vscode.TreeItemCollapsibleState.None);
 
     this.contextValue = "groupManager.page";
   }
 
-  public get path() { return this.uri.path; }
-
   public remove() {
     this.group.removePage(this.path);
-  }
-
-  public intoJson(): string {
-    return `"${this.label}": "${this.uri}"`;
   }
 }
 
@@ -140,31 +134,27 @@ export class GroupItem extends vscode.TreeItem {
     // update tree view
     this.manager.emitter.fire();
   }
-
-  public intoJson(): string {
-    let str = `"${this.label}": {`;
-
-    for (let i = 0; i < this.pages.length; i++) {
-      if (i !== 0) str += ",";
-      str += this.pages[i].intoJson();
-    }
-
-    str += "}";
-
-    return str;
-  }
 }
+
+
+type Config = Record<string, {
+  name : string,
+  pages: string[],
+}>;
 
 
 type TreeItem = GroupItem | PageItem;
 
 
 export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
-  context: vscode.ExtensionContext;
+  readonly config = vscode.workspace.getConfiguration("groupManager");
   groups = [] as GroupItem[];
 
-  constructor(context: vscode.ExtensionContext) {
+  constructor(
+    readonly context: vscode.ExtensionContext
+  ) {
     this.context = context;
+    this.loadFromConfig();
   }
 
 
@@ -191,6 +181,9 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     // push new group
     this.groups.push(group);
 
+    // save to config
+    this.saveToConfig();
+
     // update tree view
     this.emitter.fire();
 
@@ -204,6 +197,9 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     if (index === -1) return;
 
     this.groups.splice(index, 1);
+
+    // save to config
+    this.saveToConfig();
 
     // update tree view
     this.emitter.fire();
@@ -226,6 +222,9 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     group.name  = newName;
     group.label = newName;
 
+    // save to config
+    this.saveToConfig();
+
     // update tree view
     this.emitter.fire();
   }
@@ -233,5 +232,32 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
   blurAllGroups() {
     for (const group of this.groups)
       group.blur();
+  }
+
+  saveToConfig() {
+    const config = {} as Config;
+
+    for (const group of this.groups)
+      config[group.name] = {
+        name : group.name,
+        pages: group.pages.map(f => f.path),
+      };
+
+    this.config.update("groups", config, vscode.ConfigurationTarget.Workspace);
+  }
+
+  loadFromConfig() {
+    const config = this.config.get("groups") as Config | undefined;
+
+    if (!config) return;
+
+    this.groups = [];
+
+    for (const name in config) {
+      const group = this.createGroup(name)!;
+
+      for (const path of config[name].pages)
+        group.addPage(new PageItem(group, path.split("/").pop() as string, path));
+    }
   }
 }
