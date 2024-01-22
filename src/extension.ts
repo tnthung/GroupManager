@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import {
   PageItem,
   GroupItem,
+  TabGroupProxy,
   GroupManagerProvider,
 } from './manager';
 
@@ -48,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // set the group as active & focus if more than one group is opened
     if (vscode.window.tabGroups.all.length > 1) {
-      group.group = vscode.window.tabGroups.activeTabGroup;
+      group.group = new TabGroupProxy();
       group.focus();
     }
 

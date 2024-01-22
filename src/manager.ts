@@ -1,6 +1,57 @@
 import * as vscode from "vscode";
 
 
+export class TabGroupProxy {
+  private readonly _group: vscode.TabGroup
+  private          _viewColumn: number;
+
+  private onFocusCB = [] as (() => void)[];
+  private onBlurCB  = [] as (() => void)[];
+
+  constructor(group?: vscode.TabGroup) {
+    this._group      = group ?? vscode.window.tabGroups.activeTabGroup!;
+    this._viewColumn = this._group.viewColumn;
+
+    vscode.window.tabGroups.onDidChangeTabGroups(e => {
+      for (const opened of e.opened)
+        if (opened.viewColumn <= this.viewColumn)
+          this._viewColumn++;
+
+      for (const closed of e.closed)
+        if (closed.viewColumn <= this.viewColumn)
+          this._viewColumn--;
+
+      for (const changed of e.changed) {
+        if (changed.viewColumn !== this.viewColumn)
+          continue;
+
+        (changed.isActive
+          ? this.onFocusCB
+          : this.onBlurCB
+        ).forEach(f => f());
+      }
+    });
+  }
+
+  private get newInfo() {
+    return vscode.window.tabGroups.all
+      .find(f => f.viewColumn === this._group.viewColumn);
+  }
+
+  get tabs      () { return this.newInfo?.tabs     ?? [];    }
+  get isActive  () { return this.newInfo?.isActive ?? false; }
+  get viewColumn() { return this._viewColumn;                }
+
+  public onFocus(cb: () => void) {
+    this.onFocusCB.push(cb);
+  }
+
+  public onBlur(cb: () => void) {
+    this.onBlurCB.push(cb);
+  }
+}
+
+
 export class PageItem extends vscode.TreeItem {
   readonly isGroup = false as const;
   readonly isPage  = true  as const;
@@ -44,7 +95,7 @@ export class GroupItem extends vscode.TreeItem {
   readonly isGroup = true  as const;
   readonly isPage  = false as const;
 
-  group = undefined as undefined | vscode.TabGroup;
+  group = undefined as undefined | TabGroupProxy;
   pages = []        as PageItem[];
 
   constructor(
@@ -135,7 +186,7 @@ export class GroupItem extends vscode.TreeItem {
         vscode.commands.executeCommand("vscode.open", vscode.Uri.file(page.path), {preview: false});
 
       // set the new tab group to this group
-      this.group = vscode.window.tabGroups.activeTabGroup;
+      this.group = new TabGroupProxy();
     }
 
     // maximize the new tab group
@@ -171,10 +222,7 @@ export class GroupItem extends vscode.TreeItem {
     if (!this.group) return;
 
     // get new group state
-    const group = vscode.window.tabGroups.all
-      .find(f => f.viewColumn === this.viewColumn);
-
-    const needDetach = !group || group.tabs.length === 0;
+    const needDetach = this.group.tabs.length === 0;
 
     // check if all pages are closed
     if (needDetach)
