@@ -8,7 +8,7 @@
   "name": "groupmanager",
   "displayName": "GroupManager",
   "description": "group manager for vscode",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": "https://github.com/tnthung/GroupManager.git",
   "engines": {
     "vscode": "^1.85.0"

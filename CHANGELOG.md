@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.5 (2024/01/22)
+
+- [Chg] Use group proxy to handle the viewColumn change.
+
 ## 0.0.4 (2024/01/19)
 
 - [ADD] When creating a new group, if there're more than one editor group, the current active one
