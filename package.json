@@ -20,15 +20,16 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
-      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)" },
-      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(edit)"   },
-      { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"    },
-      { "command": "groupManager.detachGroup", "title": "Detach Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(stop)"   },
-      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  },
-      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"   },
-      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"    },
-      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"  }
+      { "command": "groupManager.createGroup", "title": "Create Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"        },
+      { "command": "groupManager.renameGroup", "title": "Rename Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(pencil)"     },
+      { "command": "groupManager.updateGroup", "title": "Update Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(edit)"       },
+      { "command": "groupManager.openGroup"  , "title": "Open Group"  , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye)"        },
+      { "command": "groupManager.closeGroup" , "title": "Close Group" , "enablement": "workspaceFolderCount >= 1", "icon": "$(eye-closed)" },
+      { "command": "groupManager.detachGroup", "title": "Detach Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(stop)"       },
+      { "command": "groupManager.deleteGroup", "title": "Delete Group", "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"      },
+      { "command": "groupManager.refresh"    , "title": "Refresh"     , "enablement": "workspaceFolderCount >= 1", "icon": "$(sync)"       },
+      { "command": "groupManager.addPage"    , "title": "Add Page"    , "enablement": "workspaceFolderCount >= 1", "icon": "$(add)"        },
+      { "command": "groupManager.removePage" , "title": "Remove Page" , "enablement": "workspaceFolderCount >= 1", "icon": "$(close)"      }
     ],
     "menus": {
       "commandPalette": [
@@ -36,6 +37,7 @@
         { "command": "groupManager.renameGroup", "when": "false" },
         { "command": "groupManager.updateGroup", "when": "false" },
         { "command": "groupManager.openGroup"  , "when": "false" },
+        { "command": "groupManager.closeGroup" , "when": "false" },
         { "command": "groupManager.detachGroup", "when": "false" },
         { "command": "groupManager.deleteGroup", "when": "false" },
         { "command": "groupManager.refresh"    , "when": "false" },
@@ -48,11 +50,13 @@
       ],
       "view/item/context": [
         { "command": "groupManager.renameGroup", "group": "navigation@0", "when": "view == groupManager && viewItem == groupManager.group"   },
-        { "command": "groupManager.updateGroup", "group": "navigation@0", "when": "view == groupManager && viewItem == groupManager.group"   },
-        { "command": "groupManager.deleteGroup", "group": "navigation@1", "when": "view == groupManager && viewItem == groupManager.group"   },
+        { "command": "groupManager.updateGroup", "group": "navigation@1", "when": "view == groupManager && viewItem == groupManager.group"   },
+        { "command": "groupManager.addPage"    , "group": "navigation@2", "when": "view == groupManager && viewItem == groupManager.group"   },
+        { "command": "groupManager.deleteGroup", "group": "navigation@3", "when": "view == groupManager && viewItem == groupManager.group"   },
         { "command": "groupManager.removePage" , "group": "inline@0"    , "when": "view == groupManager && viewItem == groupManager.page"    },
         { "command": "groupManager.openGroup"  , "group": "inline@0"    , "when": "view == groupManager && viewItem == groupManager.group"   },
-        { "command": "groupManager.detachGroup", "group": "inline@0"    , "when": "view == groupManager && viewItem == groupManager.focused" }
+        { "command": "groupManager.detachGroup", "group": "inline@0"    , "when": "view == groupManager && viewItem == groupManager.focused" },
+        { "command": "groupManager.closeGroup" , "group": "inline@1"    , "when": "view == groupManager && viewItem == groupManager.focused" }
       ]
     },
     "views": {

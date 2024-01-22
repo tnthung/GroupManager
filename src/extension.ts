@@ -41,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // add pages to group
     for (const editor of activeTabGroup.tabs) {
-      if (editor.isPreview || !editor.input) continue;
+      if (!editor.input) continue;
 
       const uri = (editor.input as any).uri as vscode.Uri;
       group?.addPage(new PageItem(group, uri.path));
@@ -81,9 +81,9 @@ export function activate(context: vscode.ExtensionContext) {
       if (!tabGroup.isActive) continue;
 
       for (const editor of tabGroup.tabs) {
-        if (editor.isPreview || !editor.input) continue;
+        if (!editor.input) continue;
 
-        const uri  = (editor.input as any).uri as vscode.Uri;
+        const uri = (editor.input as any).uri as vscode.Uri;
         group?.addPage(new PageItem(group, uri.path));
       }
 
@@ -96,8 +96,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.openGroup", async (group: GroupItem) => {
-    groupManager.blurAllGroups(group);
-    group.focus();
+    groupManager.openGroup(group);
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.closeGroup", async (group: GroupItem) => {
+    groupManager.closeGroup(group);
   }));
 
 
@@ -116,6 +120,23 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(vscode.commands.registerCommand("groupManager.refresh", async (group: GroupItem) => {
     groupManager.emitter.fire(group);
+  }));
+
+
+  context.subscriptions.push(vscode.commands.registerCommand("groupManager.addPage", async (group: GroupItem) => {
+    // get the active tab group
+    const activeTabGroup = vscode.window.tabGroups.activeTabGroup;
+
+    // add pages to group
+    for (const editor of activeTabGroup.tabs) {
+      if (!editor.input) continue;
+
+      const uri = (editor.input as any).uri as vscode.Uri;
+      group?.addPage(new PageItem(group, uri.path));
+    }
+
+    // save the config
+    groupManager.saveToConfig();
   }));
 
 
@@ -140,23 +161,13 @@ export function activate(context: vscode.ExtensionContext) {
       return;
     }
 
-    // get view column of the active editor
-    const viewColumn = editor.viewColumn;
-
     // iterate over all groups
     for (const group of groupManager.groups) {
-      // check if group is opened
-      if (!group.viewColumn) continue;
+      if (group.viewColumn === editor.viewColumn)
+        group.focus();
 
-      // check if the current editor is in the group
-      if (group.viewColumn !== viewColumn) {
+      else
         group.blur();
-        continue;
-      }
-
-      // if the current editor is in the group, focus the group
-      group.focus();
-      return;
     }
   }));
 

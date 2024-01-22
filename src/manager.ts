@@ -195,6 +195,9 @@ export class GroupItem extends vscode.TreeItem {
     // lock the new tab group
     vscode.commands.executeCommand("workbench.action.lockEditorGroup");
 
+    // set this group as latest
+    this.manager.setLatestGroup(this);
+
     // update tree view
     this.manager.emitter.fire();
   }
@@ -207,6 +210,11 @@ export class GroupItem extends vscode.TreeItem {
 
     // update tree view
     this.manager.emitter.fire();
+  }
+
+  public async close() {
+    await vscode.commands.executeCommand("workbench.action.closeEditorsInGroup");
+    await vscode.commands.executeCommand("workbench.action.closeGroup");
   }
 
   public detach() {
@@ -245,6 +253,7 @@ type TreeItem = GroupItem | PageItem;
 export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
   readonly config = vscode.workspace.getConfiguration("groupManager");
   groups = [] as GroupItem[];
+  latest = [] as GroupItem[];
 
   constructor(
     readonly context: vscode.ExtensionContext
@@ -316,10 +325,34 @@ export class GroupManagerProvider implements vscode.TreeDataProvider<TreeItem> {
     this.emitter.fire();
   }
 
+  async openGroup(group: GroupItem) {
+    this.blurAllGroups(group);
+    await group.focus();
+  }
+
+  async closeGroup(group: GroupItem) {
+    group.close();
+    this.latest.pop();
+    this.tryFocusLatestGroup();
+  }
+
   blurAllGroups(except?: GroupItem) {
     for (const group of this.groups)
       if (!except || group.viewColumn !== except.viewColumn)
         group.blur();
+  }
+
+  setLatestGroup(group: GroupItem) {
+    const index = this.latest.findIndex(
+      f => f.name === group.name);
+
+    if (index !== -1)
+      this.latest.splice(index, 1);
+    this.latest.push(group);
+  }
+
+  tryFocusLatestGroup() {
+    this.latest[0]?.focus();
   }
 
   saveToConfig() {
